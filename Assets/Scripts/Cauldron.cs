@@ -6,6 +6,8 @@ public class Cauldron : MonoBehaviour
     public List<string> correctOrder; // The correct order of ingredients
     private List<string> currentOrder = new List<string>(); // The current order of ingredients added
     public GameObject potionPrefab; // Prefab of the potion to instantiate
+    public GameObject incorrectEffectPrefab; // Prefab of the particle effect to instantiate
+    public Vector3 spawnOffset = new Vector3(0f, 1.0f, 0f); // Adjustable spawn offset
 
     private void OnTriggerEnter(Collider other)
     {
@@ -26,13 +28,13 @@ public class Cauldron : MonoBehaviour
                 {
                     Debug.Log("Correct order! Potion created.");
                     CreatePotion();
-                    ResetCauldron();
                 }
                 else
                 {
                     Debug.Log("Incorrect order. Try again.");
-                    ResetCauldron();
+                    CreateIncorrectEffect();
                 }
+                ResetCauldron();
             }
         }
     }
@@ -53,6 +55,13 @@ public class Cauldron : MonoBehaviour
     {
         // Instantiate the potion at the cauldron's position
         Instantiate(potionPrefab, transform.position + Vector3.up, Quaternion.identity);
+    }
+
+    private void CreateIncorrectEffect()
+    {
+        // Instantiate the particle effect at the cauldron's position with an offset
+        Vector3 spawnPosition = transform.position + spawnOffset;
+        Instantiate(incorrectEffectPrefab, spawnPosition, Quaternion.identity);
     }
 
     private void ResetCauldron()
