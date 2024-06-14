@@ -8,16 +8,16 @@ public class Pot : MonoBehaviour
     private List<string> currentOrder = new List<string>(); // The current order of ingredients added
     public GameObject plantPrefab; // Prefab of the plant to instantiate
 
-    public ParticleSystem particleEffectPrefab; // Particle effect prefab to instantiate as ingredient
+    public GameObject incorrectEffectPrefab; // Prefab to instantiate when incorrect order is detected
 
     private bool isCooldown = false; // Cooldown flag
 
-    // Dictionary to store initial positions of ingredients and particle effects
+    // Dictionary to store initial positions of ingredients
     private Dictionary<GameObject, Vector3> initialPositions = new Dictionary<GameObject, Vector3>();
 
     private void Start()
     {
-        // Store initial positions of all child objects that are ingredients or particle effects
+        // Store initial positions of all child objects that are ingredients
         StoreInitialPositions();
     }
 
@@ -54,37 +54,8 @@ public class Pot : MonoBehaviour
                 else
                 {
                     Debug.Log("Incorrect order. Try again.");
+                    Instantiate(incorrectEffectPrefab, transform.position, Quaternion.identity);
                     ResetPot();
-                }
-            }
-        }
-        else
-        {
-            // Check if the object entering is a particle effect
-            ParticleSystem particleSystem = other.GetComponent<ParticleSystem>();
-            if (particleSystem != null && particleSystem == particleEffectPrefab)
-            {
-                StartCoroutine(Cooldown()); // Start cooldown coroutine
-
-                // Add the particle effect as an ingredient to the current order
-                currentOrder.Add(particleEffectPrefab.name);
-
-                // Reset particle effect to initial position after 1 second
-                StartCoroutine(ResetToInitialPositionAfterDelay(particleSystem.gameObject, 1f));
-
-                // Check if the current order matches the correct order
-                if (currentOrder.Count == correctOrder.Count)
-                {
-                    if (IsCorrectOrder())
-                    {
-                        Debug.Log("Correct order! Plant will be created.");
-                        StartCoroutine(CreatePlantWithDelay());
-                    }
-                    else
-                    {
-                        Debug.Log("Incorrect order. Try again.");
-                        ResetPot();
-                    }
                 }
             }
         }
@@ -107,11 +78,11 @@ public class Pot : MonoBehaviour
 
     private void StoreInitialPositions()
     {
-        // Store initial positions of all child objects that are ingredients or particle effects
+        // Store initial positions of all child objects that are ingredients
         foreach (Transform child in transform)
         {
             GameObject obj = child.gameObject;
-            if (obj.GetComponent<Ingredient>() != null || obj.GetComponent<ParticleSystem>() == particleEffectPrefab)
+            if (obj.GetComponent<Ingredient>() != null)
             {
                 initialPositions[obj] = obj.transform.position;
             }
